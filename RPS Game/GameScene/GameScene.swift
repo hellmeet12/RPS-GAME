@@ -80,6 +80,7 @@ class GameScene: BaseScene {
     private var winState = "NOT" // "LOSE" , // "WIN"
     var random: [Int] = [0,1,2,3,4]
     var cardEnemy: [SKSpriteNode] = []
+    var cardEnemyBase: [SKSpriteNode] = []
     
     var isPos1Available = true
     var isPos2Available = true
@@ -89,13 +90,18 @@ class GameScene: BaseScene {
     
     var curSize = CGFloat(0)
     var isFighting = true
+    var playerList = ["","","","",""]
     
     override func didMove(to view: SKView) {
-        
         
         width = CGFloat(view.bounds.width)
         height = CGFloat(view.bounds.height)
         
+        //        registMovableAction()
+        prepareGameSet()
+    }
+    
+    func defineBoard(){
         label = SKLabelNode(text: "Preparation Time")
         label?.numberOfLines = 2
         let scale = min(UIScreen.main.bounds.width / (label?.frame.width ?? 0) , UIScreen.main.bounds.height / (label?.frame.height ?? 0) )
@@ -116,7 +122,7 @@ class GameScene: BaseScene {
         helpImage?.size.width = 44
         helpImage?.size.height = 44
         helpImage?.zPosition = 0
-        helpImage?.position = CGPoint(x: CGFloat(view.bounds.width) / 2 + 64 , y: CGFloat(view.bounds.height) / 2 + 160)
+        helpImage?.position = CGPoint(x: CGFloat(width) / 2 + 64 , y: CGFloat(height) / 2 + 160)
         addChild(helpImage!)
         
         helpImage?.setImageAction(target: self, triggerEvent: .TouchUp, action:#selector(openHelp))
@@ -132,7 +138,20 @@ class GameScene: BaseScene {
         button?.setButtonAction(target: self, triggerEvent: .TouchUp, action:#selector(goFight))
         
         addChild(button!)
-        
+    }
+    
+    func prepareGameSet(){
+        defineBoard()
+        defineScore()
+        definePlaceholder()
+        defineEnemyLife()
+        definePlayerLife()
+        defineEnemyCard()
+        definePlayerCard()
+    }
+    
+    
+    func defineScore(){
         
         scoreLeft = SKLabelNode(text: "0")
         scoreLeft?.position = CGPoint(x: -200 ,y: -15)
@@ -151,35 +170,23 @@ class GameScene: BaseScene {
         scoreRight?.fontName = "SFToontimeBlotch"
         
         addChild(scoreRight!)
-        
-//        registMovableAction()
-        prepareGameSet()
     }
-    func prepareGameSet(){
-        
-        definePlaceholder()
-        defineEnemyLife()
-        definePlayerLife()
-        defineEnemyCard()
-        definePlayerCard()
-    }
-    
-//    var tapGestureRecognizer:UITapGestureRecognizer!
-//    var panGestureRecognizer:UIPanGestureRecognizer!
-//    func registMovableAction(){
-//        self.tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(tapGestureRecognizer:)))
-//        self.panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(panGestureRecognizer:)))
-//        self.view!.addGestureRecognizer(tapGestureRecognizer)
-//        self.view!.addGestureRecognizer(panGestureRecognizer)
-//    }
-//
-//    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        if  self.panGestureRecognizer.state != .began ||
-//                self.panGestureRecognizer.state != .changed ||
-//                self.panGestureRecognizer.state != .ended {
-//            NSLog("\(#function)")
-//        }
-//    }
+    //    var tapGestureRecognizer:UITapGestureRecognizer!
+    //    var panGestureRecognizer:UIPanGestureRecognizer!
+    //    func registMovableAction(){
+    //        self.tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(tapGestureRecognizer:)))
+    //        self.panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(panGestureRecognizer:)))
+    //        self.view!.addGestureRecognizer(tapGestureRecognizer)
+    //        self.view!.addGestureRecognizer(panGestureRecognizer)
+    //    }
+    //
+    //    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+    //        if  self.panGestureRecognizer.state != .began ||
+    //                self.panGestureRecognizer.state != .changed ||
+    //                self.panGestureRecognizer.state != .ended {
+    //            NSLog("\(#function)")
+    //        }
+    //    }
     
     @objc func handleTap(tapGestureRecognizer recognizer:UITapGestureRecognizer)
     {
@@ -196,63 +203,86 @@ class GameScene: BaseScene {
                 switch i {
                 case 0:
                     self.moveCard(fromNode: self.cardE1!, toNode: self.placeholderE1!)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE1?.position = self.placeholder1!.position
+                    }
                 case 1:
                     self.moveCard(fromNode: self.cardE2!, toNode: self.placeholderE2!)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE2?.position = self.placeholder2!.position
+                    }
                 case 2:
                     self.moveCard(fromNode: self.cardE3!, toNode: self.placeholderE3!)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE3?.position = self.placeholder3!.position
+                    }
                 case 3:
                     self.moveCard(fromNode: self.cardE4!, toNode: self.placeholderE4!)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE4?.position = self.placeholder4!.position
+                    }
                 case 4:
                     self.moveCard(fromNode: self.cardE5!, toNode: self.placeholderE5!)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE5?.position = self.placeholder5!.position
+                    }
                 default: break
                 }
             }
         }
     }
     
-
+    
     func moveCardEnemyRandomly(){
-        let array = [placeholderE1, placeholderE2,placeholderE3,placeholderE4,placeholderE5]
+        let array = [placeholderE1, placeholderE2, placeholderE3, placeholderE4, placeholderE5]
         let cardList = ["paper_fcard","scissors_fcard","rock_fcard","spock_fcard","lizards_fcard"]
-        enemyList.removeAll()
-        cardEnemy.removeAll()
+        enemyList = cardList
+        cardEnemy = cardEnemyBase
         random.shuffle()
+        print("random: \(random)")
         for i in 0 ..< random.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + (0.5 * Double(i)) ){
+                
+                print("position: \(self.random[i])")
+                
                 switch i {
                 case 0:
                     self.moveCard(fromNode: self.cardE1!, toNode: array[self.random[i]]!)
-                    self.enemyList.append(cardList[self.random[i]])
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE1?.position = array[self.random[i]]!.position
+                    }
+                    
                 case 1:
                     self.moveCard(fromNode: self.cardE2!, toNode: array[self.random[i]]!)
-                    self.enemyList.append(cardList[self.random[i]])
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE2?.position = array[self.random[i]]!.position
+                    }
                 case 2:
                     self.moveCard(fromNode: self.cardE3!, toNode: array[self.random[i]]!)
-                    self.enemyList.append(cardList[self.random[i]])
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE3?.position = array[self.random[i]]!.position
+                    }
                 case 3:
                     self.moveCard(fromNode: self.cardE4!, toNode: array[self.random[i]]!)
-                    self.enemyList.append(cardList[self.random[i]])
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE4?.position = array[self.random[i]]!.position
+                    }
                 case 4:
                     self.moveCard(fromNode: self.cardE5!, toNode: array[self.random[i]]!)
-                    self.enemyList.append(cardList[self.random[i]])
-                    print("EnemyList: \(self.enemyList)")
-                    for i in 0 ..< self.random.count {
-                        if(self.random[i] == 0){
-                            self.cardEnemy.append(self.cardE1!)
-                        }else  if(self.random[i] == 1){
-                            self.cardEnemy.append(self.cardE2!)
-                        }else  if(self.random[i] == 2){
-                            self.cardEnemy.append(self.cardE3!)
-                        }else  if(self.random[i] == 3){
-                            self.cardEnemy.append(self.cardE4!)
-                        }else if(self.random[i] == 4){
-                            self.cardEnemy.append(self.cardE5!)
-                        }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE5?.position = array[self.random[i]]!.position
                     }
+                    
+                    for i in 0 ..< self.random.count {
+                        self.cardEnemy[self.random[i]] = (self.cardEnemyBase[i])
+                        self.enemyList[self.random[i]] = cardList[i]
+        
+                    }
+                    
                     self.isFighting = false
-
+                    print("EnemyList: \(self.enemyList)")
                     print("EnemyList: \(self.cardEnemy)")
-
+                    
                 default: break
                 }
             }
@@ -267,14 +297,29 @@ class GameScene: BaseScene {
                 switch i {
                 case 0:
                     self.moveCard(fromNode: self.cardE1!, toPos: self.cardE1OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE1?.position = self.cardE1OldPos
+                    }
                 case 1:
                     self.moveCard(fromNode: self.cardE2!, toPos: self.cardE2OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE2?.position = self.cardE2OldPos
+                    }
                 case 2:
                     self.moveCard(fromNode: self.cardE3!, toPos: self.cardE3OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE3?.position = self.cardE3OldPos
+                    }
                 case 3:
                     self.moveCard(fromNode: self.cardE4!, toPos: self.cardE4OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE4?.position = self.cardE4OldPos
+                    }
                 case 4:
                     self.moveCard(fromNode: self.cardE5!, toPos: self.cardE5OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.cardE5?.position = self.cardE5OldPos
+                    }
                 default: break
                 }
             }
@@ -288,14 +333,29 @@ class GameScene: BaseScene {
                 switch i {
                 case 0:
                     self.moveCard(fromNode: self.card1!, toPos: self.card1OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.card1?.position = self.card1OldPos
+                    }
                 case 1:
                     self.moveCard(fromNode: self.card2!, toPos: self.card2OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.card2?.position = self.card2OldPos
+                    }
                 case 2:
                     self.moveCard(fromNode: self.card3!, toPos: self.card3OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.card3?.position = self.card3OldPos
+                    }
                 case 3:
                     self.moveCard(fromNode: self.card4!, toPos: self.card4OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.card4?.position = self.card4OldPos
+                    }
                 case 4:
                     self.moveCard(fromNode: self.card5!, toPos: self.card5OldPos)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
+                        self.card5?.position = self.card5OldPos
+                    }
                 default: break
                 }
             }
@@ -343,15 +403,14 @@ class GameScene: BaseScene {
     
     
     func createPlaceholder(_ name: String = "") -> SKSpriteNode {
-//        let placeholder = SKImageAltNode( normalTexture: SKTexture(imageNamed: "placeholder_card"))
-//
-//        placeholder.zPosition = -1
-//        placeholder.size.width = 100
-//        placeholder.size.height = 140
+        //        let placeholder = SKImageAltNode( normalTexture: SKTexture(imageNamed: "placeholder_card"))
+        //
+        //        placeholder.zPosition = -1
+        //        placeholder.size.width = 100
+        //        placeholder.size.height = 140
+        //        let card = SKImageAltNode( normalTexture: SKTexture(imageNamed: cardName), nodeName,size)
         
         let size = CGSize(width: 100, height: 140)
-        
-//        let card = SKImageAltNode( normalTexture: SKTexture(imageNamed: cardName), nodeName,size)
         let placeholder = SKSpriteNode(texture: SKTexture(imageNamed: "placeholder_card"), color: UIColor.clear, size: size )
         if(!name.isEmpty){
             placeholder.name = name
@@ -369,7 +428,7 @@ class GameScene: BaseScene {
         placeholder4 = createPlaceholder("placeholder4")
         placeholder5 = createPlaceholder("placeholder5")
         
-
+        
         placeholder1?.position = CGPoint(x: -220, y: -150)
         placeholder2?.position = CGPoint(x: -110, y: -150)
         placeholder3?.position = CGPoint(x: 0, y: -150)
@@ -382,11 +441,11 @@ class GameScene: BaseScene {
         addChild(placeholder4!)
         addChild(placeholder5!)
         
-        placeholderE1 = createPlaceholder()
-        placeholderE2 = createPlaceholder()
-        placeholderE3 = createPlaceholder()
-        placeholderE4 = createPlaceholder()
-        placeholderE5 = createPlaceholder()
+        placeholderE1 = createPlaceholder("placeholderE1")
+        placeholderE2 = createPlaceholder("placeholderE2")
+        placeholderE3 = createPlaceholder("placeholderE3")
+        placeholderE4 = createPlaceholder("placeholderE4")
+        placeholderE5 = createPlaceholder("placeholderE5")
         
         placeholderE1?.position = CGPoint(x: -220, y: 150)
         placeholderE2?.position = CGPoint(x: -110, y: 150)
@@ -440,9 +499,9 @@ class GameScene: BaseScene {
     func createCard(_ cardName: String = "cover_image", _ nodeName: String = "") -> SKImageNode {
         let size = CGSize(width: 100, height: 140)
         
-        let card = SKImageNode( normalTexture: SKTexture(imageNamed: cardName), name: nodeName,size)
-//        let card = SKSpriteNode(texture: SKTexture(imageNamed: cardName), color: UIColor.clear, size: size )
-//        card.name = nodeName
+        let card = SKImageNode( normalTexture: SKTexture(imageNamed: cardName), name: nodeName, size)
+        //        let card = SKSpriteNode(texture: SKTexture(imageNamed: cardName), color: UIColor.clear, size: size )
+                card.name = nodeName
         card.zPosition = 1
         
         return card
@@ -490,53 +549,43 @@ class GameScene: BaseScene {
         
         switch node {
         case card1:
-            print("node 1")
             var isMoved = false
             if(card1!.position != card1OldPos){
                 isMoved = true
             }
-            print(isMoved)
-            putCardonPlaceHolder(node: card1!, isMoved: isMoved)
-
+            putCardonPlaceHolder(node: card1!, isMoved: isMoved, imageNamed:  "paper_fcard" )
+            
             break
         case card2:
-            print("node 2")
             var isMoved = false
             if(card2!.position != card2OldPos){
                 isMoved = true
             }
-            print(isMoved)
-            putCardonPlaceHolder(node: card2!, isMoved: isMoved)
-
+            putCardonPlaceHolder(node: card2!, isMoved: isMoved,imageNamed:  "scissors_fcard" )
+            
             break
         case card3:
-            print("node 3")
             var isMoved = false
             if(card3!.position != card3OldPos){
                 isMoved = true
             }
-            print(isMoved)
-            putCardonPlaceHolder(node: card3!, isMoved: isMoved)
-
+            putCardonPlaceHolder(node: card3!, isMoved: isMoved, imageNamed:  "rock_fcard" )
+            
             break
         case card4:
-            print("node 4")
             var isMoved = false
             if(card4!.position != card4OldPos){
                 isMoved = true
             }
-            print(isMoved)
-            putCardonPlaceHolder(node: card4!, isMoved: isMoved)
-
+            putCardonPlaceHolder(node: card4!, isMoved: isMoved, imageNamed:  "spock_fcard" )
+            
             break
         case card5:
-            print("node 5")
             var isMoved = false
             if(card5!.position != card5OldPos){
                 isMoved = true
             }
-            print(isMoved)
-            putCardonPlaceHolder(node: card5!, isMoved: isMoved)
+            putCardonPlaceHolder(node: card5!, isMoved: isMoved, imageNamed: "lizards_fcard")
             break
         default:
             print("default")
@@ -545,80 +594,78 @@ class GameScene: BaseScene {
         
     }
     
-    func putCardonPlaceHolder(node: SKNode,isMoved: Bool){
-        
+    var isGettingMoved = false
+    func putCardonPlaceHolder(node: SKImageNode,isMoved: Bool, imageNamed: String){
+        if(isGettingMoved){
+            return
+        }
         isPos1Available = true
         isPos2Available = true
         isPos3Available = true
         isPos4Available = true
         isPos5Available = true
-       
-        var cardList = [card1!, card2!, card3!, card4!, card5!]
-        var posList = [placeholder1?.position, placeholder2?.position, placeholder3?.position, placeholder4?.position, placeholder5?.position]
+        
+        let cardList = [card1!, card2!, card3!, card4!, card5!]
+        let posList = [placeholder1?.position, placeholder2?.position, placeholder3?.position, placeholder4?.position, placeholder5?.position]
         for i in 0..<posList.count{
             
             if(
                 i == 0 && (
-                posList[i] == card1!.position ||
-                posList[i] == card2!.position ||
-                posList[i] == card3!.position ||
-                posList[i] == card4!.position ||
-                posList[i] == card5!.position
+                    posList[i] == card1!.position ||
+                    posList[i] == card2!.position ||
+                    posList[i] == card3!.position ||
+                    posList[i] == card4!.position ||
+                    posList[i] == card5!.position
                 )
             ){
                 isPos1Available = false
                 
             } else  if(
                 i == 1 && (
-                posList[i] == card1!.position ||
-                posList[i] == card2!.position ||
-                posList[i] == card3!.position ||
-                posList[i] == card4!.position ||
-                posList[i] == card5!.position
+                    posList[i] == card1!.position ||
+                    posList[i] == card2!.position ||
+                    posList[i] == card3!.position ||
+                    posList[i] == card4!.position ||
+                    posList[i] == card5!.position
                 )
             ){
                 isPos2Available = false
-
+                
             } else if(
                 i == 2 && (
-                posList[i] == card1!.position ||
-                posList[i] == card2!.position ||
-                posList[i] == card3!.position ||
-                posList[i] == card4!.position ||
-                posList[i] == card5!.position
+                    posList[i] == card1!.position ||
+                    posList[i] == card2!.position ||
+                    posList[i] == card3!.position ||
+                    posList[i] == card4!.position ||
+                    posList[i] == card5!.position
                 )
             ){
                 isPos3Available = false
-
+                
             } else if(
                 i == 3 && (
-                posList[i] == card1!.position ||
-                posList[i] == card2!.position ||
-                posList[i] == card3!.position ||
-                posList[i] == card4!.position ||
-                posList[i] == card5!.position
+                    posList[i] == card1!.position ||
+                    posList[i] == card2!.position ||
+                    posList[i] == card3!.position ||
+                    posList[i] == card4!.position ||
+                    posList[i] == card5!.position
                 )
             ){
                 isPos4Available = false
-
+                
             } else if(
                 i == 4 && (
-                posList[i] == card1!.position ||
-                posList[i] == card2!.position ||
-                posList[i] == card3!.position ||
-                posList[i] == card4!.position ||
-                posList[i] == card5!.position
+                    posList[i] == card1!.position ||
+                    posList[i] == card2!.position ||
+                    posList[i] == card3!.position ||
+                    posList[i] == card4!.position ||
+                    posList[i] == card5!.position
                 )
             ){
                 isPos5Available = false
             }
             
         }
-        print("isPos1Available: \(isPos1Available)")
-        print("isPos2Available: \(isPos2Available)")
-        print("isPos3Available: \(isPos3Available)")
-        print("isPos4Available: \(isPos4Available)")
-        print("isPos5Available: \(isPos5Available)")
         
         if(isMoved){
             if(node == card1){
@@ -649,32 +696,48 @@ class GameScene: BaseScene {
             }
         }else{
             if(isPos1Available){
+                isGettingMoved = true
+                playerList[0] = imageNamed
                 moveCard(fromNode: node, toPos: placeholder1!.position)
                 DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
                     node.position = self.placeholder1!.position
+                    self.isGettingMoved = false
                 }
             }else if(isPos2Available){
+                isGettingMoved = true
+                playerList[1] = imageNamed
                 moveCard(fromNode: node, toPos: placeholder2!.position)
                 DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
                     node.position = self.placeholder2!.position
+                    self.isGettingMoved = false
                 }
             }else if(isPos3Available){
+                isGettingMoved = true
+                playerList[2] =  imageNamed
                 moveCard(fromNode: node, toPos: placeholder3!.position)
                 DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
                     node.position = self.placeholder3!.position
+                    self.isGettingMoved = false
                 }
             }else if(isPos4Available){
+                isGettingMoved = true
+                playerList[3] = imageNamed
                 moveCard(fromNode: node, toPos: placeholder4!.position)
                 DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
                     node.position = self.placeholder4!.position
+                    self.isGettingMoved = false
                 }
             }else if(isPos5Available){
+                isGettingMoved = true
+                playerList[4] = imageNamed
                 moveCard(fromNode: node, toPos: placeholder5!.position)
                 DispatchQueue.main.asyncAfter(deadline: .now() + (0.6) ){
                     node.position = self.placeholder5!.position
+                    self.isGettingMoved = false
                 }
             }
         }
+        
         
     }
     
@@ -691,7 +754,7 @@ class GameScene: BaseScene {
             return
         }
         handlePlayerCard(node: card2!)
-
+        
     }
     
     @objc func executeOnTouchCard3(){
@@ -700,7 +763,7 @@ class GameScene: BaseScene {
             return
         }
         handlePlayerCard(node: card3!)
-
+        
     }
     
     @objc func executeOnTouchCard4(){
@@ -709,7 +772,7 @@ class GameScene: BaseScene {
             return
         }
         handlePlayerCard(node: card4!)
-
+        
     }
     
     @objc func executeOnTouchCard5(){
@@ -718,12 +781,12 @@ class GameScene: BaseScene {
             return
         }
         handlePlayerCard(node: card5!)
-
+        
     }
     
     func defineEnemyCard(){
         cardE1 = createCard("paper_fcard", "cardE1")
-        cardE2 = createCard("scissors_fcard",  "cardE2")
+        cardE2 = createCard("scissors_fcard", "cardE2")
         cardE3 = createCard("rock_fcard", "cardE3")
         cardE4 = createCard("spock_fcard", "cardE4")
         cardE5 = createCard("lizards_fcard", "cardE5")
@@ -750,6 +813,7 @@ class GameScene: BaseScene {
         addChild(cardE5!)
         
         cardEnemy = [cardE1!,cardE2!,cardE3!,cardE4!,cardE5!]
+        cardEnemyBase = [cardE1!,cardE2!,cardE3!,cardE4!,cardE5!]
         prepareEnemy()
     }
     
@@ -790,12 +854,12 @@ class GameScene: BaseScene {
     
     func resetGame(){
         
-        isPos1Available = false
-        isPos2Available = false
-        isPos3Available = false
-        isPos4Available = false
-        isPos5Available = false
-        
+        isPos1Available = true
+        isPos2Available = true
+        isPos3Available = true
+        isPos4Available = true
+        isPos5Available = true
+        playerList = ["","","","",""]
         if(winState != "NOT"){
             return
         }
@@ -831,49 +895,50 @@ class GameScene: BaseScene {
         DispatchQueue.main.asyncAfter(deadline: .now() + (1)){
             for i in 0 ..< 5 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + (0.6 * Double(i)) ){
-                  
+
                     self.flipTile(node: self.cardEnemy[i], image: "cover_image")
                 }
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + (4)){
-//            for i in 0 ..< 5 {
-//                DispatchQueue.main.asyncAfter(deadline: .now() + (0.6 * Double(i)) ){
-//
-//                    self.flipTile(node: self.cardEnemy[i], image: self.enemyList[i])
-//
-//                }
-//            }
+            //            for i in 0 ..< 5 {
+            //                DispatchQueue.main.asyncAfter(deadline: .now() + (0.6 * Double(i)) ){
+            //
+            //                    self.flipTile(node: self.cardEnemy[i], image: self.enemyList[i])
+            //
+            //                }
+            //            }
             
-//            print("check \(self.enemyList)")
-//            print("check \(self.cardEnemy)")
+            //            print("check \(self.enemyList)")
+            //            print("check \(self.cardEnemy)")
             self.moveCardEnemyRandomly()
         }
     }
     
     @objc func goFight() {
-        print("executed1")
+
         if(isFighting){
+            return
+        }
+        if (playerList.contains("")){
+            print("please return")
             return
         }
         isFighting = true
         
-    
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + (1) ){
             self.label?.text = "Fight"
             
-            let list = self.randomList()
-            print("fight \(self.enemyList)")
-            print("fight \(self.cardEnemy)")
             for i in 0 ..< 5 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + (0.6 * Double(i)) ){
+                    print("cardEnemy: \(self.cardEnemy[i].name) , \(self.enemyList[i])")
                     self.flipTile(node: self.cardEnemy[i], image: self.enemyList[i])
-                    self.fightThis(string: list[i], string2: self.enemyList[i])
+                    self.fightThis(string: self.playerList[i], string2: self.enemyList[i])
                 }
             }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                print("------------------")
                 self.calculateTotalMatch()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.75) {
                     self.resetGame()
@@ -948,7 +1013,7 @@ class GameScene: BaseScene {
             changeToWinLight(node: lifeE1!)
             //showDialogLose
             winState = "LOSE"
-
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.resultGameView = self.resultView()
                 self.addChild(self.resultGameView!
@@ -1020,7 +1085,7 @@ class GameScene: BaseScene {
     
     
     func resultView() -> SKShapeNode{
-       
+        
         resultGameView = SKShapeNode(rectOf: CGSize(width: 600 - 32, height: 600 - 32),cornerRadius: 16)
         resultGameView?.fillColor = SKColor.darkGray
         resultGameView?.position = CGPoint(x: 0, y: 0)
@@ -1028,7 +1093,7 @@ class GameScene: BaseScene {
         
         let sampleLabel = SKLabelNode(text: "0")
         sampleLabel.numberOfLines = 2
-
+        
         sampleLabel.position = CGPoint(x: 0 ,y: 175)
         sampleLabel.fontSize = 40
         sampleLabel.zPosition = 1
@@ -1074,7 +1139,7 @@ class GameScene: BaseScene {
         attrString.addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: range)
         attrString.addAttributes([NSAttributedString.Key.foregroundColor : UIColor.black, NSAttributedString.Key.font : UIFont.init(name: "SFToontimeBlotch", size: 36)!], range: range)
         sampleLabel.attributedText = attrString
-
+        
         let textImage = SKImageAltNode( normalTexture: SKTexture(imageNamed: image))
         textImage.size.width = 150
         textImage.size.height = 150
@@ -1095,9 +1160,7 @@ class GameScene: BaseScene {
     @objc func playAgain() {
         removeChildren(in: [resultGameView!])
         //reset game
-        isAdded = false
-        prepareGameSet()
-        
+        gameDelegate?.updateScene(sceneName: "GameScene")
     }
     
     @objc func backToHome() {
@@ -1106,7 +1169,7 @@ class GameScene: BaseScene {
     }
     
     @objc func handlePan(panGestureRecognizer recognizer:UIPanGestureRecognizer) {
-
+        
         let touchLocationView = recognizer.location(in: recognizer.view)
         let touchLocationScene = self.convertPoint(fromView: touchLocationView)
         
@@ -1116,56 +1179,49 @@ class GameScene: BaseScene {
             if let name = canditateNode.name, name.contains(kMovableNode) {
                 self.selectedNode = canditateNode
             }
-            print("Began is Touch?")
-
+            
         case .changed:
             let translation = recognizer.translation(in: recognizer.view)
             if let position = self.selectedNode?.position {
                 self.selectedNode?.position = CGPoint(x: position.x + translation.x, y: position.y - translation.y)
                 recognizer.setTranslation(CGPoint.zero, in: recognizer.view)
             }
-            print("Changed is Touch?")
-
+            
         case .ended:
             self.selectedNode?.physicsBody?.isDynamic = true;
             let velocity = recognizer.velocity(in: recognizer.view)
             self.selectedNode?.physicsBody?.applyImpulse(CGVector(dx: velocity.x, dy: -velocity.y))
-            print("Ended is Touch?")
-//            print("\(selectedNode?.position.x), \(selectedNode?.position.x)")
+            //            print("\(selectedNode?.position.x), \(selectedNode?.position.x)")
             self.selectedNode = nil
-
+            
         default:
             break
         }
     }
     
-//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        if let touch = touches.first {
-//            let touchLocationScene = touch.location(in: self)
-//            let canditateNode = self.touchedNode(touchLocationScene)
-//            if let name = canditateNode.name, name.contains(kMovableNode) {
-//                self.selectedNode = canditateNode
-//                self.selectedNode?.physicsBody?.isDynamic = false
-//            }
-//
-//            if let name2 = canditateNode.name, name2.contains("btShowDown") {
-//                goFight()
-//            }
-//        }
-//    }
-//
+    //    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    //        if let touch = touches.first {
+    //            let touchLocationScene = touch.location(in: self)
+    //            let canditateNode = self.touchedNode(touchLocationScene)
+    //            if let name = canditateNode.name, name.contains(kMovableNode) {
+    //                self.selectedNode = canditateNode
+    //                self.selectedNode?.physicsBody?.isDynamic = false
+    //            }
+    //
+    //            if let name2 = canditateNode.name, name2.contains("btShowDown") {
+    //                goFight()
+    //            }
+    //        }
+    //    }
+    //
     func touchedNode(_ touchLocationInScene:CGPoint) -> SKNode {
         let node = self.atPoint(touchLocationInScene)
-        print("node: \(node.name!)")
+
         if (node.name == "btShowDown" ){
             goFight()
         }
         return node
     }
-    
-   
-    
-    
     
     override func touchDown(atPoint pos : CGPoint) {
         super.touchDown(atPoint: pos)

@@ -9,7 +9,6 @@ import UIKit
 import SpriteKit
 import GameplayKit
 import GameKit
-import SwiftUI
 
 class GameViewController: UIViewController ,GKGameCenterControllerDelegate, GameDelegate{
     
